@@ -1,13 +1,27 @@
 from django.db import models
 
+
 NULLABLE = {'blank': True, 'null': True}
+
+PERIODISITY_CHOISES = (
+    ('day', 'Раз в день'),
+    ('week', 'Раз в неделю'),
+    ('month', 'Раз в месяц'),
+)
+
+STATUS_CHOISES = (
+    ('created', 'Создана'),
+    ('started', 'Запущена'),
+    ('completed', 'Завершена'),
+)
 
 
 class Mailing(models.Model):
     """Модель таблицы - товары"""
-    time = models.DateTimeField(verbose_name='Время рассылки')
-    periodisity = models.CharField(max_length=150, verbose_name='Периодичность')
-    status = models.CharField(max_length=10, verbose_name='Статус рассылки')
+    time = models.DateTimeField(verbose_name='Дата и время рассылки')
+    periodisity = models.CharField(max_length=20, choices=PERIODISITY_CHOISES, default='month',
+                                   verbose_name='Периодичность')
+    status = models.CharField(max_length=10, choices=STATUS_CHOISES, default='created', verbose_name='Статус рассылки')
     client = models.ManyToManyField('Client', verbose_name='Клиент')
     message = models.ForeignKey('Message', on_delete=models.CASCADE, verbose_name='Сообщение')
 
@@ -27,7 +41,7 @@ class Client(models.Model):
     comment = models.TextField(max_length=500, **NULLABLE, verbose_name='Коментарий')
 
     def __str__(self):
-        return f'{self.full_name}'
+        return f'{self.email}'
 
     class Meta:
         """Класс отображения метаданных"""
