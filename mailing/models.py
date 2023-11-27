@@ -18,7 +18,8 @@ STATUS_CHOISES = (
 
 class Mailing(models.Model):
     """Модель таблицы - товары"""
-    time = models.DateTimeField(verbose_name='Дата и время рассылки')
+    time = models.TimeField(verbose_name='Время рассылки')
+    date = models.DateField(verbose_name='Дата рассылки')
     periodisity = models.CharField(max_length=20, choices=PERIODISITY_CHOISES, default='month',
                                    verbose_name='Периодичность')
     status = models.CharField(max_length=10, choices=STATUS_CHOISES, default='created', verbose_name='Статус рассылки')
@@ -26,7 +27,7 @@ class Mailing(models.Model):
     message = models.ForeignKey('Message', on_delete=models.CASCADE, verbose_name='Сообщение')
 
     def __str__(self):
-        return f'{self.periodisity}'
+        return f'{self.date}'
 
     class Meta:
         """Класс отображения метаданных"""

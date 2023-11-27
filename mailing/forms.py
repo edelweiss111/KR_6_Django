@@ -34,8 +34,11 @@ class MailingForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model = Mailing
         exclude = ('status',)
-        # widgets = {
-        #     'time':  forms.SplitDateTimeWidget(
-        #         date_attrs={'type': 'date', }, time_attrs={'type': 'time'}
-        #     )
-        # }
+        widgets = {
+            'time':  forms.TimeInput(
+                attrs={'type': 'time', }
+            ),
+            'date': forms.DateInput(
+                attrs={'type': 'date', }
+            )
+        }
