@@ -1,3 +1,4 @@
+import smtplib
 from datetime import datetime, timedelta
 from calendar import monthrange
 from mailing.models import Mailing, Log
@@ -29,8 +30,8 @@ def start_mailing():
                 year = now.year
                 days_count = monthrange(year, month)
                 mailing.date += timedelta(days=days_count[1])
-        except Exception:
-            Log.objects.create(time=now, status=False, server_response='', mailing=mailing)
+        except smtplib.SMTPException as e:
+            Log.objects.create(time=now, status=False, server_response=e, mailing=mailing)
             mailing.status = 'created'
         finally:
             mailing.save()

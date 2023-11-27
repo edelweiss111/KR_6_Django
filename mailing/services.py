@@ -1,3 +1,5 @@
+import smtplib
+
 from django.core.mail import send_mail
 
 from config.settings import EMAIL_HOST_USER
@@ -11,5 +13,5 @@ def send_mailing(client_list, message):
             EMAIL_HOST_USER,
             client_list
         )
-    except Exception:
-        raise Exception
+    except smtplib.SMTPException:
+        raise smtplib.SMTPException
