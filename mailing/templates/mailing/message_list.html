@@ -22,8 +22,8 @@
               <td>{{message.body}}</td>
               <td>
                 <div class="btn-group">
-                    <a type="button" class="btn btn-outline-primary" href="{% url 'mailing:edit_message' message.id %}">Редактировать</a>
-                    <a type="button" class="btn btn-outline-danger" href="{% url 'mailing:delete_message' message.id %}">Удалить</a>
+                    <a type="button" class="btn btn-outline-primary btn-sm" href="{% url 'mailing:edit_message' message.id %}">Редактировать</a>
+                    <a type="button" class="btn btn-outline-danger btn-sm" href="{% url 'mailing:delete_message' message.id %}">Удалить</a>
                 </div>
               </td>
             </tr>

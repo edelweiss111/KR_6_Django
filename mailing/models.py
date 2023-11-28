@@ -1,5 +1,5 @@
+from django.conf import settings
 from django.db import models
-
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -26,6 +26,8 @@ class Mailing(models.Model):
     client = models.ManyToManyField('Client', verbose_name='Клиент')
     message = models.ForeignKey('Message', on_delete=models.CASCADE, verbose_name='Сообщение')
 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
+
     def __str__(self):
         return f'{self.date}'
 
@@ -41,6 +43,8 @@ class Client(models.Model):
     full_name = models.CharField(max_length=150, verbose_name='ФИО')
     comment = models.TextField(max_length=500, **NULLABLE, verbose_name='Коментарий')
 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
+
     def __str__(self):
         return f'{self.email}'
 
@@ -54,6 +58,8 @@ class Message(models.Model):
     """Модель таблицы - товары"""
     subject = models.CharField(max_length=150, verbose_name='Тема письма')
     body = models.TextField(max_length=1000, **NULLABLE, verbose_name='Тело письма')
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
 
     def __str__(self):
         return f'{self.subject}'

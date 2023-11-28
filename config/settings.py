@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 
     'django_crontab',
     'mailing',
+    'users',
+    'blog',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +140,13 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_SERVER = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
+
+
+# Users
+AUTH_USER_MODEL = 'users.User'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = 'users:login'
 
 # Cache
 CACHE_ENABLED = os.getenv('CACHE_ENABLED')

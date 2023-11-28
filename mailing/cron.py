@@ -17,9 +17,9 @@ def start_mailing():
         clients = mailing.client.all()
         message = mailing.message
         try:
-            send_mailing(clients, message)
+            response = send_mailing(clients, message)
 
-            Log.objects.create(time=now, status=True, server_response='', mailing=mailing)
+            Log.objects.create(time=now, status=bool(response), server_response='', mailing=mailing)
             mailing.status = 'created'
             if mailing.periodisity == 'day':
                 mailing.date += timedelta(days=1)
@@ -31,7 +31,7 @@ def start_mailing():
                 days_count = monthrange(year, month)
                 mailing.date += timedelta(days=days_count[1])
         except smtplib.SMTPException as e:
-            Log.objects.create(time=now, status=False, server_response=e, mailing=mailing)
+            Log.objects.create(time=now, status=bool(response), server_response=e, mailing=mailing)
             mailing.status = 'created'
         finally:
             mailing.save()
