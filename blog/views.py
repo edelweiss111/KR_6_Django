@@ -6,7 +6,7 @@ from blog.models import Blog
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 
 
 class ArticleListView(LoginRequiredMixin, ListView):
@@ -42,16 +42,21 @@ class ArticleCreateView(LoginRequiredMixin, CreateView):
         """Генерация slug к статье"""
         if form.is_valid():
             new_article = form.save()
+            new_article.user = self.request.user
             new_article.slug = slugify(new_article.title)
             new_article.save()
         return super().form_valid(form)
 
 
-class ArticleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class ArticleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Контроллер редактирования статьи"""
     model = Blog
     form_class = BlogForm
-    permission_required = 'blog.change_blog'
+
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user or user.has_perm('blog.change_blog'):
+            return True
 
     def form_valid(self, form):
         """Обновление slug"""
@@ -66,8 +71,12 @@ class ArticleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         return reverse('blog:view', args=[self.kwargs.get('slug')])
 
 
-class ArticleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class ArticleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Контроллер удаления статьи"""
-    permission_required = 'blog.delete_blog'
     model = Blog
     success_url = reverse_lazy('blog:articles')
+
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user or user.has_perm('blog.delete_blog'):
+            return True

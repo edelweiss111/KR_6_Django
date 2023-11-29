@@ -34,13 +34,17 @@
               </td>
               <td>
                 <div class="btn-group">
+                    {% if user == mailing.user %}
                     <a type="button" class="btn btn-outline-primary btn-sm" href="{% url 'mailing:edit_mailing' mailing.pk %}">Редактировать</a>
+                    {% endif %}
                     {% if mailing.status == 'created' %}
                     <a type="button" class="btn btn-outline-warning btn-sm" href="{% url 'mailing:status_mailing' mailing.pk %}">Завершить</a>
                     {% elif mailing.status == 'completed' %}
                     <a type="button" class="btn btn-outline-success btn-sm" href="{% url 'mailing:status_mailing' mailing.pk %}">Начать</a>
                     {% endif %}
+                    {% if user == mailing.user %}
                     <a type="button" class="btn btn-outline-danger btn-sm" href="{% url 'mailing:delete_mailing' mailing.pk %}">Удалить</a>
+                    {% endif %}
                 </div>
               </td>
             </tr>

@@ -1,9 +1,11 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+import random
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
 
+from blog.models import Blog
 from mailing.forms import ClientForm, MessageForm, MailingForm
 from mailing.models import Client, Message, Mailing
 
@@ -11,6 +13,19 @@ from mailing.models import Client, Message, Mailing
 class HomeTemplateView(TemplateView):
     """Контроллер главной страницы"""
     template_name = 'mailing/index.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context_data = super().get_context_data(*args, **kwargs)
+        clients_count = len(Client.objects.filter(user=self.request.user.pk))
+        mailing_count = len(Mailing.objects.filter(user=self.request.user.pk))
+        active_mailing = len(Mailing.objects.filter(user=self.request.user.pk, status='created'))
+        blog_list = [blog for blog in Blog.objects.all()]
+        random_blog_list = random.sample(blog_list, 3)
+        context_data['clients_count'] = clients_count
+        context_data['mailing_count'] = mailing_count
+        context_data['active_mailing'] = active_mailing
+        context_data['random_blog_list'] = random_blog_list
+        return context_data
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -37,29 +52,27 @@ class ClientListView(LoginRequiredMixin, ListView):
         )
 
 
-class ClientUpdateView(UpdateView):
+class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Контроллер страницы редактирования клиентов"""
     model = Client
     form_class = ClientForm
     success_url = reverse_lazy('mailing:client_list')
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.object.user != self.request.user:
-            raise Http404
-        return self.object
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
 
 
-class ClientDeleteView(DeleteView):
+class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Контроллер удаления клиента"""
     model = Client
     success_url = reverse_lazy('mailing:client_list')
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.object.user != self.request.user:
-            raise Http404
-        return self.object
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -76,29 +89,27 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MessageUpdateView(UpdateView):
+class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Контроллер страницы редактирования сообщения"""
     model = Message
     form_class = MessageForm
     success_url = reverse_lazy('mailing:message_list')
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.object.user != self.request.user:
-            raise Http404
-        return self.object
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
 
 
-class MessageDeleteView(DeleteView):
+class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Контроллер страницы удаления сообщения"""
     model = Message
     success_url = reverse_lazy('mailing:home_page')
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.object.user != self.request.user:
-            raise Http404
-        return self.object
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
 
 
 class MessageListView(LoginRequiredMixin, ListView):
@@ -125,29 +136,27 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MailingUpdateView(UpdateView):
+class MailingUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Контроллер страницы редактирования рассылки"""
     model = Mailing
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.object.user != self.request.user:
-            raise Http404
-        return self.object
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
 
 
-class MailingDeleteView(DeleteView):
+class MailingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Контроллер страницы удаления рассылки"""
     model = Mailing
     success_url = reverse_lazy('mailing:mailing_list')
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.object.user != self.request.user:
-            raise Http404
-        return self.object
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
 
 
 class MailingListView(LoginRequiredMixin, ListView):
@@ -155,6 +164,8 @@ class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
 
     def get_queryset(self):
+        if self.request.user.has_perm('mailing.view_mailing'):
+            return super().get_queryset()
         return super().get_queryset().filter(
             user=self.request.user
         )
@@ -163,7 +174,7 @@ class MailingListView(LoginRequiredMixin, ListView):
 def status_mailing(request, pk):
     """Контроллер смены статуса рассылки"""
     mailing = Mailing.objects.get(pk=pk)
-    if request.user == mailing.user:
+    if request.user == mailing.user or request.user.groups.filter(name='manager').exists():
         if mailing.status == 'created':
             mailing.status = 'completed'
             mailing.save()

@@ -1,13 +1,15 @@
 import random
 from django.contrib import messages
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.mail import send_mail
 
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView
 from django.shortcuts import redirect
 from config.settings import EMAIL_HOST_USER
-from users.forms import RegisterForm, UserForm
+from users.forms import RegisterForm, UserForm, ListUserForm
 from users.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 
@@ -80,3 +82,22 @@ def generate_password(request):
     )
     messages.success(request, 'Вам на почту отправлено письмо с новым паролем для вашего аккаунта')
     return redirect(reverse('users:login'))
+
+
+class UserListView(PermissionRequiredMixin, ListView):
+    model = User
+    form_class = ListUserForm
+    permission_required = 'users.view_user'
+
+
+@permission_required('users.set_is_active')
+def status_user(request, pk):
+    user = User.objects.get(pk=pk)
+    if user.is_active is True:
+        user.is_active = False
+        user.save()
+    elif user.is_active is False:
+        user.is_active = True
+        user.save()
+    return redirect(reverse('users:user_list'))
+

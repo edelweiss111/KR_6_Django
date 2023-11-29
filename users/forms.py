@@ -22,3 +22,10 @@ class UserForm(StyleFormMixin, UserChangeForm):
         super().__init__(*args, **kwargs)
         self.fields['password'].widget = forms.HiddenInput()
 
+
+class ListUserForm(StyleFormMixin, forms.ModelForm):
+    """Форма модели User для списка"""
+
+    class Meta:
+        model = User
+        fields = ('email', 'first_name', 'last_name', 'country')
