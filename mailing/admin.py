@@ -26,4 +26,4 @@ class ContactAdmin(admin.ModelAdmin):
 @admin.register(Log)
 class ContactAdmin(admin.ModelAdmin):
     """Админка отображения модели Blog"""
-    list_display = ('id', 'time', 'status')
+    list_display = ('id', 'time', 'status', 'server_response', 'mailing')
