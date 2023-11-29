@@ -53,7 +53,7 @@ class Client(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
 
     def __str__(self):
-        return f'{self.email}, {self.full_name}'
+        return f'{self.email}'
 
     class Meta:
         """Класс отображения метаданных"""
