@@ -1,7 +1,7 @@
 import random
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.mail import send_mail
 
@@ -83,7 +83,7 @@ def generate_password(request):
     return redirect(reverse('users:login'))
 
 
-class UserListView(PermissionRequiredMixin, ListView):
+class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Контроллер страницы списка пользователей"""
     model = User
     form_class = ListUserForm
@@ -94,10 +94,11 @@ class UserListView(PermissionRequiredMixin, ListView):
 def status_user(request, pk):
     """Контроллер смены статуса пользователя"""
     user = User.objects.get(pk=pk)
-    if user.is_active is True:
-        user.is_active = False
-        user.save()
-    elif user.is_active is False:
-        user.is_active = True
-        user.save()
-    return redirect(reverse('users:user_list'))
+    if not user.is_superuser:
+        if user.is_active is True:
+            user.is_active = False
+            user.save()
+        elif user.is_active is False:
+            user.is_active = True
+            user.save()
+        return redirect(reverse('users:user_list'))

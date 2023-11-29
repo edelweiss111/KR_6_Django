@@ -49,9 +49,7 @@ class ClientListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """Вывод клиентов пользователя"""
-        return super().get_queryset().filter(
-            user=self.request.user
-        )
+        return super().get_queryset().filter(user=self.request.user)
 
 
 class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -64,6 +62,7 @@ class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         user = self.request.user
         if user == self.get_object().user:
             return True
+        return self.handle_no_permission()
 
 
 class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -75,6 +74,7 @@ class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         user = self.request.user
         if user == self.get_object().user:
             return True
+        return self.handle_no_permission()
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -101,6 +101,7 @@ class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         user = self.request.user
         if user == self.get_object().user:
             return True
+        return self.handle_no_permission()
 
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -112,6 +113,7 @@ class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         user = self.request.user
         if user == self.get_object().user:
             return True
+        return self.handle_no_permission()
 
 
 class MessageListView(LoginRequiredMixin, ListView):
@@ -120,9 +122,7 @@ class MessageListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """Вывод сообщений пользователя"""
-        return super().get_queryset().filter(
-            user=self.request.user
-        )
+        return super().get_queryset().filter(user=self.request.user)
 
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
@@ -149,6 +149,7 @@ class MailingUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         user = self.request.user
         if user == self.get_object().user:
             return True
+        return self.handle_no_permission()
 
 
 class MailingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -160,6 +161,7 @@ class MailingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         user = self.request.user
         if user == self.get_object().user:
             return True
+        return self.handle_no_permission()
 
 
 class MailingListView(LoginRequiredMixin, ListView):
@@ -170,9 +172,7 @@ class MailingListView(LoginRequiredMixin, ListView):
         """Вывод рассылок пользователя либо всех рассылок для модератора"""
         if self.request.user.has_perm('mailing.view_mailing'):
             return super().get_queryset()
-        return super().get_queryset().filter(
-            user=self.request.user
-        )
+        return super().get_queryset().filter(user=self.request.user)
 
 
 def status_mailing(request, pk):

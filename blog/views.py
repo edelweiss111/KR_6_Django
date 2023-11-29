@@ -57,6 +57,7 @@ class ArticleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         user = self.request.user
         if user == self.get_object().user or user.has_perm('blog.change_blog'):
             return True
+        return self.handle_no_permission()
 
     def form_valid(self, form):
         """Обновление slug"""
@@ -80,3 +81,4 @@ class ArticleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         user = self.request.user
         if user == self.get_object().user or user.has_perm('blog.delete_blog'):
             return True
+        return self.handle_no_permission()

@@ -29,7 +29,7 @@ class Mailing(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
 
     def __str__(self):
-        return f'{self.date}'
+        return f'{self.date}: Сообщение - {self.message}'
 
     class Meta:
         """Класс отображения метаданных"""
@@ -53,7 +53,7 @@ class Client(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
 
     def __str__(self):
-        return f'{self.email}'
+        return f'{self.email}, {self.full_name}'
 
     class Meta:
         """Класс отображения метаданных"""
