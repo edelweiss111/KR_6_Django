@@ -15,6 +15,7 @@ class HomeTemplateView(TemplateView):
     template_name = 'mailing/index.html'
 
     def get_context_data(self, *args, **kwargs):
+        """Вывод информации на главную страницу"""
         context_data = super().get_context_data(*args, **kwargs)
         clients_count = len(Client.objects.filter(user=self.request.user.pk))
         mailing_count = len(Mailing.objects.filter(user=self.request.user.pk))
@@ -47,6 +48,7 @@ class ClientListView(LoginRequiredMixin, ListView):
     model = Client
 
     def get_queryset(self):
+        """Вывод клиентов пользователя"""
         return super().get_queryset().filter(
             user=self.request.user
         )
@@ -117,6 +119,7 @@ class MessageListView(LoginRequiredMixin, ListView):
     model = Message
 
     def get_queryset(self):
+        """Вывод сообщений пользователя"""
         return super().get_queryset().filter(
             user=self.request.user
         )
@@ -164,6 +167,7 @@ class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
 
     def get_queryset(self):
+        """Вывод рассылок пользователя либо всех рассылок для модератора"""
         if self.request.user.has_perm('mailing.view_mailing'):
             return super().get_queryset()
         return super().get_queryset().filter(
@@ -174,7 +178,7 @@ class MailingListView(LoginRequiredMixin, ListView):
 def status_mailing(request, pk):
     """Контроллер смены статуса рассылки"""
     mailing = Mailing.objects.get(pk=pk)
-    if request.user == mailing.user or request.user.groups.filter(name='manager').exists():
+    if request.user == mailing.user or request.user.has_perm('mailing.set_status'):
         if mailing.status == 'created':
             mailing.status = 'completed'
             mailing.save()

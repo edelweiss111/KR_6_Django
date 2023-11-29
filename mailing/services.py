@@ -6,6 +6,7 @@ from config.settings import EMAIL_HOST_USER
 
 
 def send_mailing(client_list, message):
+    """Функция отправки письма"""
     try:
         response = send_mail(
             message.subject,

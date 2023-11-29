@@ -36,6 +36,13 @@ class Mailing(models.Model):
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
 
+        permissions = [
+            (
+                'set_status',
+                'Can change status'
+            )
+        ]
+
 
 class Client(models.Model):
     """Модель таблицы - товары"""

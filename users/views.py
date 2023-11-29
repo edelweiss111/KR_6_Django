@@ -9,6 +9,8 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, ListView
 from django.shortcuts import redirect
 from config.settings import EMAIL_HOST_USER
+from mailing.models import Message
+from mailing.services import send_mailing
 from users.forms import RegisterForm, UserForm, ListUserForm
 from users.models import User
 from django.contrib.messages.views import SuccessMessageMixin
@@ -74,17 +76,15 @@ def generate_password(request):
     new_password = User.objects.make_random_password()
     request.user.set_password(new_password)
     request.user.save()
-    send_mail(
-        'Смена пароля',
-        f'Ваш новый пароль для авторизации: {new_password}',
-        EMAIL_HOST_USER,
-        [request.user.email]
-    )
+    message = Message.objects.create(subject='Смена пароля', body=f'Ваш новый пароль для авторизации: {new_password}',
+                                     user=User.objects.get(pk=request.user.pk))
+    send_mailing([request.user.email], message)
     messages.success(request, 'Вам на почту отправлено письмо с новым паролем для вашего аккаунта')
     return redirect(reverse('users:login'))
 
 
 class UserListView(PermissionRequiredMixin, ListView):
+    """Контроллер страницы списка пользователей"""
     model = User
     form_class = ListUserForm
     permission_required = 'users.view_user'
@@ -92,6 +92,7 @@ class UserListView(PermissionRequiredMixin, ListView):
 
 @permission_required('users.set_is_active')
 def status_user(request, pk):
+    """Контроллер смены статуса пользователя"""
     user = User.objects.get(pk=pk)
     if user.is_active is True:
         user.is_active = False
@@ -100,4 +101,3 @@ def status_user(request, pk):
         user.is_active = True
         user.save()
     return redirect(reverse('users:user_list'))
-
