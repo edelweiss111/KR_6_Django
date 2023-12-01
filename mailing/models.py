@@ -29,7 +29,8 @@ class Mailing(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
 
     def __str__(self):
-        return f'{self.date}: Сообщение - {self.message}'
+        return f'Дата - {self.date}: \n' \
+               f'Сообщение - {self.message}'
 
     class Meta:
         """Класс отображения метаданных"""
@@ -83,6 +84,8 @@ class Log(models.Model):
     status = models.BooleanField(verbose_name='Статус попытки')
     server_response = models.CharField(max_length=150, verbose_name='Ответ сервера', **NULLABLE)
     mailing = models.ForeignKey('Mailing', on_delete=models.CASCADE, verbose_name='Рассылка', **NULLABLE)
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, verbose_name='Пользователь')
 
     def __str__(self):
         return f'{self.time}'

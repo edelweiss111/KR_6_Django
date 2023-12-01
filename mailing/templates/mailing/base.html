@@ -121,6 +121,9 @@
                         <a class="nav-link" href="{% url 'mailing:mailing_list' %}">Рассылки</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'mailing:log_list' %}">История рассылок</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active" href="{% url 'blog:articles' %}">Статьи<span class="sr-only">(current)</span></a>
                     </li>
                     {% if user.is_authenticated %}

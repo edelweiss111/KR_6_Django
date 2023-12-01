@@ -3,11 +3,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 import random
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView, DetailView
 
 from blog.models import Blog
 from mailing.forms import ClientForm, MessageForm, MailingForm
-from mailing.models import Client, Message, Mailing
+from mailing.models import Client, Message, Mailing, Log
 
 
 class HomeTemplateView(TemplateView):
@@ -186,3 +186,35 @@ def status_mailing(request, pk):
             mailing.status = 'created'
             mailing.save()
     return redirect(reverse('mailing:mailing_list'))
+
+
+class LogListView(LoginRequiredMixin, ListView):
+    """Контроллер страницы логов"""
+    model = Log
+
+    def get_queryset(self):
+        """Вывод сообщений пользователя"""
+        return super().get_queryset().filter(user=self.request.user)
+
+
+class LogDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    """Контроллер страницы лога"""
+    model = Log
+
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
+        return self.handle_no_permission()
+
+
+class LogDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Контроллер удаления лога"""
+    model = Log
+    success_url = reverse_lazy('mailing:log_list')
+
+    def test_func(self):
+        user = self.request.user
+        if user == self.get_object().user:
+            return True
+        return self.handle_no_permission()
