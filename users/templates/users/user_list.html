@@ -17,17 +17,17 @@
             </tr>
           </thead>
           <tbody>
-          {% for user in user_list %}
+          {% for item in user_list %}
             <tr>
-              <td>{{user.pk}}</td>
-              <td>{{user.email}}</td>
-              <td>{{user.first_name}}</td>
-              <td>{{user.last_name}}</td>
-              <td>{{user.country}}</td>
+              <td>{{item.pk}}</td>
+              <td>{{item.email}}</td>
+              <td>{{item.first_name}}</td>
+              <td>{{item.last_name}}</td>
+              <td>{{item.country}}</td>
               <td>
-                    {% if user.is_active == False and perms.users.set_is_active  %}
+                    {% if item.is_active == False and perms.users.set_is_active  %}
                     <a type="button" class="btn btn-outline-warning btn-sm" href="{% url 'users:status_user' user.pk %}">Разблокировать</a>
-                    {% elif user.is_active == True and user.is_superuser == False and perms.users.set_is_active %}
+                    {% elif item.is_active == True and item.is_superuser == False and perms.users.set_is_active and item != user %}
                     <a type="button" class="btn btn-outline-success btn-sm" href="{% url 'users:status_user' user.pk %}">Заблокировать</a>
                     {% endif %}
               </td>
