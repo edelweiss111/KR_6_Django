@@ -8,10 +8,9 @@ from mailing.services import send_mailing
 def start_mailing():
     """Функция проверки и начала рассылок"""
     now = datetime.now()
-    mailing_list = Mailing.objects.filter(date__lte=now, time__lte=now)
-    created_mailing_list = [mailing for mailing in mailing_list if mailing.status == 'created']
+    mailing_list = Mailing.objects.filter(date__lte=now, time__lte=now, status='created')
 
-    for mailing in created_mailing_list:
+    for mailing in mailing_list:
         user = mailing.user
         mailing.status = 'started'
         mailing.save()
