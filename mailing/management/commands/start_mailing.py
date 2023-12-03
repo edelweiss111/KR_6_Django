@@ -1,3 +1,5 @@
+import smtplib
+
 from django.core.management import BaseCommand
 from datetime import datetime, timedelta
 from calendar import monthrange
@@ -12,15 +14,17 @@ class Command(BaseCommand):
         created_mailing_list = [mailing for mailing in mailing_list if mailing.status == 'created']
 
         for mailing in created_mailing_list:
+            user = mailing.user
             mailing.status = 'started'
             mailing.save()
 
             clients = mailing.client.all()
             message = mailing.message
             try:
-                send_mailing(clients, message)
+                response = send_mailing(clients, message)
 
-                Log.objects.create(time=now, status=True, server_response='', mailing=mailing)
+                log = Log.objects.create(time=now, status=bool(response), server_response='', mailing=mailing,
+                                         user=user)
                 mailing.status = 'created'
                 if mailing.periodisity == 'day':
                     mailing.date += timedelta(days=1)
@@ -31,10 +35,10 @@ class Command(BaseCommand):
                     year = now.year
                     days_count = monthrange(year, month)
                     mailing.date += timedelta(days=days_count[1])
-
-            except Exception:
-                Log.objects.create(time=now, status=False, server_response='', mailing=mailing)
+            except smtplib.SMTPException as e:
+                log = Log.objects.create(time=now, status=bool(response), server_response=e, mailing=mailing,
+                                         user=user)
                 mailing.status = 'created'
-
             finally:
+                log.save()
                 mailing.save()
